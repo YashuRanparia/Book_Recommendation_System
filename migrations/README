@@ -1,0 +1,3 @@
+Generic single-database configuration.
+ALembic cheatsheet: https://dev.to/atifwattoo/cheat-sheet-of-alembic-commands-1b9i
+Command to emove pycache - for /d /r . %d in (__pycache__) do @if exist "%d" rd /s /q "%d"
