@@ -1,16 +1,10 @@
 from sqlalchemy.orm import Session
-from app.modules.auth.schemas import UserSignup, UserLogin, Token, PayloadSchema
+from app.modules.auth.schemas import UserSignup, UserLogin, Token, PayloadSchema, SuperUserCreate
 from app.modules.users import repository as user_repo
 from fastapi import HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 from app.core.security import verify_password, create_jwt_token
 from app.core.logging import logger
 from app.modules.users.exceptions import UserAlreadyExistsException
-
-oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="auth/login",
-    # scopes={"user-r": "Read permission for user.", 'user-w': "Write permission for user."}
-    )  
 
 def user_signup(session: Session, user_data: UserSignup):
     """
@@ -31,7 +25,7 @@ def user_login(session: Session, credentials: UserLogin):
     This function will contain the logic for logging in a user.
     """
     user = user_repo.get_user(session, email=credentials.email)
-    payload = PayloadSchema(id=user.id)
+    payload = PayloadSchema(id=user.id, scopes=credentials.scopes.split(' '))
     if verify_password(credentials.password, user.password):
         access_token = create_jwt_token(payload)
         return Token(access_token=access_token, token_type='bearer')
@@ -41,3 +35,17 @@ def user_login(session: Session, credentials: UserLogin):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+def create_super_user(session: Session, user_data: SuperUserCreate):
+    """
+    Function to create a superuser.
+    This function will contain the logic for creating a superuser.
+    """
+    user_data.is_superuser = True
+    try:
+        user_repo.user_create(session, user_data.model_dump(exclude_unset=True))
+    except UserAlreadyExistsException as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )

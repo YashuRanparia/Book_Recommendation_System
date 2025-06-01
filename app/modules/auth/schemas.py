@@ -60,7 +60,15 @@ class UserSignup(UserBase):
         return name if len(name) > 0 else None
     
 class UserLogin(UserBase):
-    pass
+    scopes: str = ''
+
+class UserLoginDocs(BaseModel):
+    username: str
+    password: SecretStr
+    scope: str = ''
+
+class SuperUserCreate(UserSignup):
+    is_superuser: bool = Field(default=True)
 
 class Token(BaseModel):
     access_token: str
@@ -68,4 +76,12 @@ class Token(BaseModel):
 
 class PayloadSchema(BaseModel):
     id: str
-    # scopes: list[str] = []
+    scopes: list[str] = []
+
+class AuthenticatedUser(BaseModel):
+    id: str
+    email: EmailStr
+    is_superuser: bool
+
+    class Config:
+        from_attributes = True
