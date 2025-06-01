@@ -4,8 +4,14 @@ from app.core.constants import tzinfo
 from datetime import datetime, timedelta
 from app.modules.auth.schemas import PayloadSchema
 import jwt
+from fastapi.security import OAuth2PasswordBearer
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="auth/login",
+    scopes={"user-r": "Read permission for user.", 'user-w': "Write permission for user."}
+    )  
 
 def get_password_hash(password: str):
     return pwd_context.hash(password)
