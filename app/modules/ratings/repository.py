@@ -10,4 +10,4 @@ def create_rating(session: Session, user_id: str, book_id: str, rating_data: dic
         session.commit()
     except IntegrityError as e:
         session.rollback()
-        print(f'IntegrityError: {e.orig}')
+        print(f'IntegrityError: {e.orig}') 
