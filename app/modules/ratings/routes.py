@@ -9,7 +9,7 @@ from app.core.schemas import ResponseSchema
 
 router = APIRouter(prefix="/rating", tags=["Rating"])
 
-@router.post('/create', description="Add ratings for the item", response_model=ResponseSchema, summary="Add rating for a book")
+@router.post('/add', description="Add ratings for the item", response_model=ResponseSchema, summary="Add rating for a book")
 def add_rating(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Depends(get_authenticated_user)], book_id: str, rating_data: Annotated[RatingBase, Form()]):
     return rating_service.add_rating(session, user, book_id, rating_data)
 

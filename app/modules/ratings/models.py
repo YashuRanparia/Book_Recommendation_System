@@ -7,6 +7,24 @@ from app.modules.users import models as user_model
 from typing import List
 
 class Rating(Base):
+    """
+    Rating model for the application.
+    This model represents the ratings given by users to books.
+    It includes fields for the rating value, the associated book, and the user who made the rating.
+    The rating value must be one of the specified values (0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0).
+    The model also enforces a unique constraint on the combination of book_id and user_id to prevent duplicate ratings.
+    Relationships are established with the User and Book models to allow easy access to the user and book associated with each rating.
+    Indexes are created on composition of user_id and book_id for efficient querying of ratings by user and book.
+    
+    Attributes:
+        id (str): Unique identifier for the rating.
+        book_id (str): Foreign key referencing the Book model.
+        user_id (str): Foreign key referencing the User model.
+        users (List[User]): Relationship to the User model, representing the user who made the rating.
+        books (List[Book]): Relationship to the Book model, representing the book being rated.
+        value (float): The rating value, constrained to specific values.
+    """
+
     __tablename__ = 'rating'
 
     id: Mapped[str] = mapped_column(primary_key=True, default=lambda: uuid.uuid4(), unique=True, nullable=False)

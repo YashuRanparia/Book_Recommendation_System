@@ -20,8 +20,7 @@ def create_book(session: Annotated[Session, Depends(get_db)], book_data: Annotat
     Returns:
         None
     """
-    book_services.create_book(session, book_data)
-    return {"status": "success", "message": "Book added successfully!"}
+    return book_services.create_book(session, book_data)
 
 @router.get("/get/{book_id}", summary="Get a book by ID", response_model=BookData, status_code=status.HTTP_200_OK)
 def get_book(session: Annotated[Session, Depends(get_db)], book_id: Annotated[str, Path(description="The ID of the book to retrieve")], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])]):
@@ -65,3 +64,17 @@ def delete_book(session: Annotated[Session, Depends(get_db)], book_id: Annotated
         None
     """
     book_services.delete_book(session, book_id)
+
+
+@router.get("/get-all", summary="Get all books", response_model=list[BookData], status_code=status.HTTP_200_OK)
+def get_all_books(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])]):
+    """
+    Retrieve all books from the database.
+    
+    Args:
+        session: SQLAlchemy session for database operations.
+    
+    Returns:
+        A list of all books.
+    """
+    return book_services.get_all_books(session)

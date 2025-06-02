@@ -1,6 +1,6 @@
 from app.core.db import Base
 from sqlalchemy.orm import mapped_column, Mapped, validates, relationship
-from sqlalchemy import String
+from sqlalchemy import String, UniqueConstraint, Index
 import uuid
 from datetime import date
 
@@ -14,6 +14,8 @@ class Book(Base):
     published_year: Mapped[int] = mapped_column(nullable=True)
     image: Mapped[str] = mapped_column(String(255), nullable=True)
     ratings_book: Mapped[list["Rating"]] = relationship(back_populates="books")
+
+    __table_args__ = (UniqueConstraint('title', 'author', name='unique_book_title_author'), Index("idx_title_autror", "title", "author"))
 
     @validates('title', 'author')
     def validate_title_and_author(self, key, value: str):
