@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="auth/login",
+    tokenUrl="/auth/login",
     scopes={"user-r": "Read permission for user.", 'user-w': "Write permission for user."}
     )  
 

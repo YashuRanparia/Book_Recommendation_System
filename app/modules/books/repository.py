@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 from app.modules.books.models import Book
 from app.modules.books.exceptions import BookNotFoundError
+from datetime import datetime
+from app.core.constants import tzinfo
 
 def create_book(session: Session, book_data: dict):
     """
@@ -33,7 +35,7 @@ def get_book(session: Session, book_id: str):
     Returns:
         The book object if found, otherwise raises an HTTP 404 error.
     """
-    book = session.query(Book).filter(Book.id == book_id).first()
+    book = session.query(Book).filter(Book.id == book_id, Book.deleted_at == None).first()
     if not book:
         raise BookNotFoundError(book_id)
     return book
@@ -73,7 +75,7 @@ def delete_book(session: Session, book_id: str):
     """
     book = get_book(session, book_id)
     try:
-        session.delete(book)
+        book.deleted_at = datetime.now(tzinfo)
         session.commit()
     except Exception as e:
         session.rollback()

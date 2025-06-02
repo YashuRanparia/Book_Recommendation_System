@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, status, Form
-from app.dependencies import get_db, is_super_user
+from fastapi import APIRouter, Depends, status, Form, Security
+from app.dependencies import get_db, is_super_user, get_authenticated_user
 from typing import Annotated
 from sqlalchemy.orm import Session
-from app.modules.auth.schemas import UserSignup, UserLogin, SuperUserCreate, UserLoginDocs
+from app.modules.auth.schemas import UserSignup, UserLogin, SuperUserCreate, UserLoginDocs, AuthenticatedUser
 from app.modules.auth import services as auth_services
 from app.core.schemas import ResponseSchema
 
@@ -16,10 +16,10 @@ def user_signup(session: Annotated[Session, Depends(get_db)], user_data: Annotat
 
 @router.post("/login", status_code=status.HTTP_200_OK)
 def user_login(session: Annotated[Session, Depends(get_db)], credentials: Annotated[UserLoginDocs, Form()]):
-    auth_services.user_login(session, UserLogin(email=credentials.username, password=credentials.password.get_secret_value(), scopes=credentials.scope))
+    return auth_services.user_login(session, UserLogin(email=credentials.username, password=credentials.password.get_secret_value(), scopes=credentials.scope))
 
-@router.post('/create_super_user', status_code=status.HTTP_201_CREATED, summary="Create a superuser", dependencies=[Depends(is_super_user)])
-def create_super_user(session: Annotated[Session, Depends(get_db)], user_data: Annotated[SuperUserCreate, Form()], ):
+@router.post('/create_super_user', status_code=status.HTTP_201_CREATED, summary="Create a superuser")
+def create_super_user(session: Annotated[Session, Depends(get_db)], user_data: Annotated[SuperUserCreate, Form()], auth_user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r', 'user-w'])]):
     """
     Create a superuser.
     
@@ -29,4 +29,5 @@ def create_super_user(session: Annotated[Session, Depends(get_db)], user_data: A
     Returns:
         None
     """
-    auth_services.create_super_user(session, user_data)
+    print(auth_user.email)
+    return auth_services.create_super_user(session, user_data)

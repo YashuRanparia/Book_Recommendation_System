@@ -20,7 +20,7 @@ def get_db():
     finally:
         session.close()
 
-def get_authenticated_user(session: Annotated[Session, Depends(get_db)], token: Annotated[str, Depends(oauth2_scheme)]) -> AuthenticatedUser:
+def get_authenticated_user(session: Annotated[Session, Depends(get_db)], security_scopes: SecurityScopes,  token: Annotated[str, Depends(oauth2_scheme)]) -> AuthenticatedUser:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,13 +41,13 @@ def get_authenticated_user(session: Annotated[Session, Depends(get_db)], token: 
     req_scopes = payload.get('scopes', [])
 
     # Security permission check
-    # for scope in security_scopes.scopes:
-    #     if scope not in req_scopes:
-    #         raise  HTTPException(
-    #             status_code=status.HTTP_401_UNAUTHORIZED,
-    #             detail="Not enough permissions.",
-    #             headers={"WWW-Authenticate": "Bearer"},
-    #         )
+    for scope in security_scopes.scopes:
+        if scope not in req_scopes:
+            raise  HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not enough permissions.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     
     rawuser = user_repo.get_user(session, id=user_id)
     user = AuthenticatedUser.model_validate(rawuser)
