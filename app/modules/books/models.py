@@ -1,5 +1,5 @@
 from app.core.db import Base
-from sqlalchemy.orm import mapped_column, Mapped, validates
+from sqlalchemy.orm import mapped_column, Mapped, validates, relationship
 from sqlalchemy import String
 import uuid
 from datetime import date
@@ -13,6 +13,7 @@ class Book(Base):
     description: Mapped[str] = mapped_column(String(1000), nullable=True)
     published_year: Mapped[int] = mapped_column(nullable=True)
     image: Mapped[str] = mapped_column(String(255), nullable=True)
+    ratings: Mapped[list["Rating"]] = relationship(back_populates="users")
 
     @validates('title', 'author')
     def validate_title_and_author(self, key, value: str):

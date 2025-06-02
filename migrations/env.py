@@ -21,6 +21,7 @@ if config.config_file_name is not None:
 from app.core.db import Base
 from app.modules.users.models import User
 from app.modules.books.models import Book
+from app.modules.ratings.models import Rating
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

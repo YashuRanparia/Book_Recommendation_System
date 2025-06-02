@@ -1,10 +1,11 @@
 from app.core.db import Base
 from sqlalchemy import Column, Integer, String, Boolean
-from sqlalchemy.orm import mapped_column, validates, Mapped
+from sqlalchemy.orm import mapped_column, validates, Mapped, relationship
 from string import punctuation
 import email_validator
 from datetime import datetime, date
 import uuid
+from typing import List
 
 class User(Base):
     __tablename__ = "user"
@@ -14,6 +15,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     first_name: Mapped[str] = mapped_column(String(128), nullable=True)
     last_name: Mapped[str] = mapped_column(String(128), nullable=True)
+    ratings: Mapped[list["Rating"]] = relationship(back_populates="users")
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
