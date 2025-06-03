@@ -78,3 +78,12 @@ def get_all_books(session: Annotated[Session, Depends(get_db)], user: Annotated[
         A list of all books.
     """
     return book_services.get_all_books(session)
+
+@router.get("/search", status_code=status.HTTP_200_OK, summary="API to search a book based on title and author.")
+def search_book(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])], title: str):
+    '''
+        Title or Author
+
+        Title: 
+    '''
+    pass

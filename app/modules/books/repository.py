@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from app.modules.books.models import Book
 from app.modules.books.exceptions import BookNotFoundError, BookAlreadyExistsError
 from datetime import datetime
@@ -97,3 +98,15 @@ def get_all_books(session: Session):
     """
     books = session.query(Book).filter(Book.deleted_at == None).all()
     return books
+
+def get_book_based_on_title(session: Session, title: str):
+    try:
+        stmt = select(Book).filter(Book.title == title)
+        book = session.execute(stmt).first()
+
+        if not book:
+            raise BookNotFoundError()
+
+        return book
+    except Exception as e:
+        pass

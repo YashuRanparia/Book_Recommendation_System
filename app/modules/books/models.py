@@ -15,7 +15,7 @@ class Book(Base):
     image: Mapped[str] = mapped_column(String(255), nullable=True)
     ratings_book: Mapped[list["Rating"]] = relationship(back_populates="books")
 
-    __table_args__ = (UniqueConstraint('title', 'author', name='unique_book_title_author'), Index("idx_title_autror", "title", "author"))
+    __table_args__ = (UniqueConstraint('title', 'author', name='unique_book_title_author'), Index("idx_title_autror", "title", "author"), Index("idx_title", "title"), Index("idx_author", "author"))
 
     @validates('title', 'author')
     def validate_title_and_author(self, key, value: str):

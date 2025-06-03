@@ -84,3 +84,6 @@ def get_all_books(session: Session) -> list[BookData]:
     """
     books = book_repository.get_all_books(session)
     return [BookData.model_validate(book, from_attributes=True) for book in books]
+
+def search_book(session: Session, title: str):
+    pass

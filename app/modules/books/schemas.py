@@ -15,7 +15,7 @@ class BookCreate(BookBase):
     def validate_published_year(cls, value: int):
         year = date.today().year
         if value is not None and (value < 0 or value > year):
-            raise ValueError(f"Published year must be between 0 and {year}.")
+            raise ValueError(f"Book must be published! So enter ")
         return value
     
     @field_validator('image')
