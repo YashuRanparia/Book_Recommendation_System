@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.modules.books.models import Book
 from app.modules.books.exceptions import BookNotFoundError, BookAlreadyExistsError
 from datetime import datetime
 from app.core.constants import tzinfo
+from app.modules.ratings.models import Rating
 
 def create_book(session: Session, book_data: dict):
     """
@@ -86,7 +87,7 @@ def delete_book(session: Session, book_id: str):
         session.rollback()
         raise e
     
-def get_all_books(session: Session):
+def get_books(session: Session, *, title: str = None, author: str = None, rating: float = 0.0):
     """
     Retrieve all books from the database.
     
@@ -96,17 +97,23 @@ def get_all_books(session: Session):
     Returns:
         A list of all book objects.
     """
-    books = session.query(Book).filter(Book.deleted_at == None).all()
+
+    # stmt = select(Book).filter(Book.deleted_at == None)
+    stmt = select(Book, func.avg(Rating.value).label("avg_rating")).join_from(Book, Rating, Book.id == Rating.book_id).group_by(Book.id, Rating.book_id).having(Book.deleted_at == None, Book.title == title if title else True, Book.author == author if author else True)
+    subq = stmt.subquery()
+    filtered_data_q = select(subq).filter(subq.c.avg_rating >= rating)
+    
+    # ordered_result = select(subq).order_by(subq.c.avg_rating.desc())
+
+    books = session.execute(filtered_data_q).fetchall()
+    # print(books)
     return books
 
 def get_book_based_on_title(session: Session, title: str):
-    try:
-        stmt = select(Book).filter(Book.title == title)
-        book = session.execute(stmt).first()
+    stmt = select(Book).filter(Book.title == title)
+    book = session.execute(stmt).first()
 
-        if not book:
-            raise BookNotFoundError()
+    if not book:
+        raise BookNotFoundError()
 
-        return book
-    except Exception as e:
-        pass
+    return book

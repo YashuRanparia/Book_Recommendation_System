@@ -72,7 +72,7 @@ def delete_book(session: Session, book_id: str):
             detail=str(e)
         ) from e
     
-def get_all_books(session: Session) -> list[BookData]:
+def get_books(session: Session, title: str, author: str, rating: float) -> list[BookData]:
     """
     Retrieve all books from the database.
     
@@ -82,8 +82,6 @@ def get_all_books(session: Session) -> list[BookData]:
     Returns:
         A list of all book objects.
     """
-    books = book_repository.get_all_books(session)
+    books = book_repository.get_books(session, title=title, author=author, rating=rating)
+    # print(books)
     return [BookData.model_validate(book, from_attributes=True) for book in books]
-
-def search_book(session: Session, title: str):
-    pass

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, Form, Path, Security
+from fastapi import APIRouter, Depends, status, Form, Path, Security, Query
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from typing import Annotated
@@ -66,8 +66,8 @@ def delete_book(session: Annotated[Session, Depends(get_db)], book_id: Annotated
     book_services.delete_book(session, book_id)
 
 
-@router.get("/get-all", summary="Get all books", response_model=list[BookData], status_code=status.HTTP_200_OK)
-def get_all_books(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])]):
+@router.get("/get-books", summary="Get all books", response_model=list[BookData], status_code=status.HTTP_200_OK)
+def get_books(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])], title: Annotated[str, Query(description="A title query param to filter books.")] = None, author: Annotated[str, Query(description="A author query param to filter books.")] = None, rating: Annotated[float, Query(description="A rating query param to filter books.")] = 0.0):
     """
     Retrieve all books from the database.
     
@@ -77,10 +77,10 @@ def get_all_books(session: Annotated[Session, Depends(get_db)], user: Annotated[
     Returns:
         A list of all books.
     """
-    return book_services.get_all_books(session)
+    return book_services.get_books(session, title=title, author=author, rating=rating)
 
 @router.get("/search", status_code=status.HTTP_200_OK, summary="API to search a book based on title and author.")
-def search_book(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])], title: str):
+def search_book(session: Annotated[Session, Depends(get_db)], user: Annotated[AuthenticatedUser, Security(get_authenticated_user, scopes=['user-r'])], title: str = None):
     '''
         Title or Author
 

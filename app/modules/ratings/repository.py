@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select, func
 from sqlalchemy.exc import IntegrityError
 from app.modules.ratings.models import Rating
 from app.modules.ratings.exceptions import RatingNotFoundException
